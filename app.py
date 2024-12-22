@@ -5,33 +5,51 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 
 # Réponses prédéfinies
+greetings = ["salut", "bonjour", "hello", "bonsoir"]
 responses = {
     "bonjour": "Bonjour ! Comment puis-je vous aider ?",
+    "salut": "Salut ! Comment ça va ?",
     "comment ça va": "Je vais bien, merci ! Et vous ?",
     "quelle est la capitale de la france": "La capitale de la France est Paris.",
     "au revoir": "Au revoir ! Passez une excellente journée."
 }
 
-# Réponse par défaut (peut répondre à tout)
+# Réponse par défaut pour les questions non reconnues
 default_responses = [
-    "Je suis désolé, je n'ai pas la réponse exacte, mais je peux essayer de vous aider.",
-    "Hmm, je ne suis pas sûr, mais c'est une question intéressante !",
-    "Je ne connais pas la réponse exacte, mais vous pourriez me demander autrement.",
-    "Pouvez-vous être plus précis ? Je vais essayer de vous répondre."
+    "C'est une question intéressante, mais je ne connais pas la réponse exacte.",
+    "Hmm, je ne suis pas sûr de comprendre, mais essayons d'en discuter.",
+    "Pouvez-vous me donner plus de détails ? Je vais essayer de vous aider.",
+    "Je ne sais pas exactement, mais je peux chercher si vous reformulez."
 ]
+
+# Fonction pour déterminer si une phrase est une question
+def is_question(user_input):
+    return user_input.endswith("?") or "quel" in user_input or "quoi" in user_input
 
 # Fonction pour répondre à l'utilisateur
 def chatbot_response(user_input):
     user_input = user_input.lower().strip()  # Nettoie l'entrée utilisateur
+    
+    # Vérifie les salutations
+    if user_input in greetings:
+        return random.choice([
+            "Bonjour ! Comment puis-je vous aider aujourd'hui ?",
+            "Salut ! Ravi de vous voir. Une question ?",
+            "Hello ! Que puis-je faire pour vous ?"
+        ])
+    
+    # Vérifie les réponses prédéfinies
     if user_input in responses:
         return responses[user_input]
-    else:
-        # Génère une réponse improvisée pour répondre à tout
-        return (
-            f"Vous avez demandé : '{user_input}'. "
-            f"Malheureusement, je n'ai pas la réponse exacte pour cela, "
-            f"mais je suis sûr qu'on peut approfondir si vous me donnez plus de détails."
-        )
+    
+    # Si c'est une question
+    if is_question(user_input):
+        return random.choice(default_responses)
+    
+    # Réponse par défaut pour les phrases non reconnues
+    return (
+        f"Vous avez dit : '{user_input}'. Je ne suis pas sûr de comprendre, mais je suis là pour discuter si besoin."
+    )
 
 # Route principale
 @app.route("/")
