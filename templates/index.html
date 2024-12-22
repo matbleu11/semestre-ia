@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Basique</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        #chatbox {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-log {
+            height: 300px;
+            overflow-y: scroll;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .chat-log p {
+            margin: 5px 0;
+        }
+        .chat-log .user {
+            text-align: right;
+            color: blue;
+        }
+        .chat-log .bot {
+            text-align: left;
+            color: green;
+        }
+        form {
+            display: flex;
+            margin-top: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background: #0078d7;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005bb5;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatbox">
+        <div class="chat-log" id="chat-log"></div>
+        <form id="chat-form">
+            <input type="text" id="user-input" placeholder="Tapez votre message ici..." required>
+            <button type="submit">Envoyer</button>
+        </form>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const chatLog = document.getElementById('chat-log');
+        const userInput = document.getElementById('user-input');
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userText = userInput.value;
+
+            // Afficher la question de l'utilisateur
+            chatLog.innerHTML += `<p class="user">Vous : ${userText}</p>`;
+            userInput.value = '';
+
+            // Envoyer la question au serveur Flask
+            const response = await fetch('/get_response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `user_input=${encodeURIComponent(userText)}`
+            });
+            const botResponse = await response.text();
+
+            // Afficher la réponse du bot
+            chatLog.innerHTML += `<p class="bot">IA : ${botResponse}</p>`;
+            chatLog.scrollTop = chatLog.scrollHeight;
+        });
+    </script>
+</body>
+</html>
